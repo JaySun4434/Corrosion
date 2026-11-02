@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="description" content="工程变量 · 大气腐蚀计算器。依据 ISO 9223:2012 与 ISO 9224:2012，估算金属大气腐蚀损失并比较计算方法。" />
+  <title>大气腐蚀计算器 · 工程变量</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="data.js"></script>
+  <script defer src="licensed-annex-a.js"></script>
+  <script defer src="calc.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+<div class="site-shell">
+  <header class="site-header">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span>工程变量 <span class="brand-sub">/ ENGINEERING VARIABLES</span></span></div>
+    <span class="header-meta">ENGINEERING TOOL <span class="header-index">/ 01</span></span>
+  </header>
+  <div class="intro">
+    <div><div class="eyebrow">MATERIALS / ATMOSPHERIC EXPOSURE</div><h1>大气腐蚀计算器<span class="title-square" aria-hidden="true"></span></h1><p class="intro-en">Atmospheric Corrosion Calculator</p></div>
+    <div class="standard-tag">ISO 9223:2012 <span>/</span> ISO 9224:2012</div>
+  </div>
+  <main class="app-grid">
+    <section class="panel input-panel" aria-labelledby="inputTitle">
+      <div class="section-heading"><span class="section-number">01</span><div><h2 id="inputTitle">输入参数</h2><p>INPUT PARAMETERS</p></div><button id="resetBtn" class="text-button" type="button" title="重置参数">重置 <span aria-hidden="true">↺</span></button></div>
+      <div class="mode-switch" role="group" aria-label="输入方式"><button type="button" class="mode-btn active" data-mode="grade" aria-pressed="true">已知腐蚀等级</button><button type="button" class="mode-btn" data-mode="env" aria-pressed="false">环境参数估算</button></div>
+      <div class="form-group"><label for="metal">金属材料 <small>METAL</small></label><select id="metal"><option value="steel">碳钢 · Carbon steel</option><option value="zinc" selected>锌 · Zinc</option><option value="copper">铜 · Copper</option><option value="aluminium">铝 · Aluminium</option></select></div>
+      <div class="form-group output-unit-group"><label for="resultUnit">结果单位 <small>OUTPUT UNIT</small></label><select id="resultUnit"><option value="depth" selected>厚度损失 · µm</option><option value="mass">质量损失 · g/m²</option></select><p id="unitHint" class="field-help" hidden>铝仅使用质量损失表示；累计量为 g/m²，年速率为 g/(m²·a)。</p></div>
+      <div id="gradeInputs">
+        <div class="form-group"><label for="category">腐蚀等级 <small>CATEGORY</small></label><select id="category"><option>C1</option><option>C2</option><option selected>C3</option><option>C4</option><option>C5</option><option>CX</option></select></div>
+        <div class="form-group"><label for="rateChoice">首年腐蚀速率 <small>FIRST-YEAR RATE</small></label><select id="rateChoice"><option value="upper" selected>等级上限</option><option value="mid">等级中值</option><option value="custom">自定义数值</option></select><p id="rateRange" class="field-help"></p></div>
+        <div id="customWrap" class="form-group" hidden><label for="customRate">自定义首年速率 <small id="customUnit">µm/a</small></label><input id="customRate" type="number" inputmode="decimal" step="any" min="0" value="2.1" /></div>
+      </div>
+      <div id="envInputs" hidden>
+        <div class="form-row"><div class="form-group"><label for="temp">年平均温度 <small>°C</small></label><input id="temp" type="number" inputmode="decimal" step="any" value="20" /></div><div class="form-group"><label for="rh">相对湿度 <small>%</small></label><input id="rh" type="number" inputmode="decimal" min="0" max="100" step="any" value="70" /></div></div>
+        <div class="form-group"><label for="so2Unit">SO₂ 数据类型</label><select id="so2Unit"><option value="deposition">沉降量 Pd · mg/(m²·d)</option><option value="concentration">空气浓度 Pc · µg/m³</option></select></div>
+        <div class="form-group"><label for="so2" id="so2Label">SO₂ 沉降量 <small>mg/(m²·d)</small></label><input id="so2" type="number" inputmode="decimal" min="0" step="any" value="10" /><p class="field-help" id="so2Conversion">ISO 9223 使用年均沉降量 Pd。</p></div>
+        <div class="form-group"><label for="chloride">Cl⁻ 沉降量 <small>mg/(m²·d)</small></label><input id="chloride" type="number" inputmode="decimal" min="0" step="any" value="20" /></div>
+      </div>
+      <div class="form-group years-group"><div class="label-row"><label for="years">设计年限 <small>EXPOSURE PERIOD</small></label><output id="yearsBadge" for="years">20 年</output></div><input type="range" id="years" min="1" max="50" step="1" value="20"/><div class="range-ends"><span>1 YEAR</span><span>50 YEARS</span></div></div>
+      <p id="inputMessage" class="inline-notice" aria-live="polite"></p>
+      <div class="input-bottom"><span>参考工况</span><span id="inputSummary">Zinc · C3 · Upper limit</span></div>
+    </section>
+    <div class="right-stack">
+      <section class="panel results-panel" aria-labelledby="resultsTitle">
+        <div class="section-heading"><span class="section-number">02</span><div><h2 id="resultsTitle">计算结果与趋势曲线</h2><p>RESULTS &amp; CORROSION CURVES</p></div><span class="heading-note">B1 DEFAULT</span></div>
+        <div class="results-hero"><div class="hero-left"><div class="hero-label">累计腐蚀损失 <span id="heroTime">/ 20 YEARS</span></div><div class="hero-value" aria-live="polite"><span id="heroValue">23.99</span><span id="heroUnit" class="hero-unit">µm</span></div><p class="hero-note">ISO 9224 · 公式法 B1</p></div><div class="hero-secondary"><div class="mini-metric"><span>首年腐蚀速率</span><strong id="firstYear">2.10 <small>µm/a</small></strong></div><div class="mini-metric"><span>腐蚀等级</span><strong id="resultGrade">C3</strong></div><div class="mini-metric"><span>设计年限</span><strong id="resultYears">20 <small>年</small></strong></div></div></div>
+        <div class="chart-header"><div><h3>腐蚀损失趋势</h3><p id="chartUnitTitle">累计厚度损失 / µm</p></div><div class="chart-actions"><button id="copyBtn" type="button" class="small-button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="11" height="12" rx="1.5"/><path d="M5 16H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1"/></svg>复制结果</button><button id="exportBtn" type="button" class="small-button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg>导出 CSV</button></div></div>
+        <div id="legend" class="chart-legend" role="group" aria-label="选择显示的计算曲线"></div>
+        <div id="chartWrap" class="chart-wrap">
+          <svg id="chartSvg" tabindex="0" aria-label="腐蚀累计损失趋势。用左右方向键按年查看。" role="img"></svg>
+          <div id="chartTooltip" class="chart-tooltip" hidden></div>
+        </div>
+        <div class="chart-footer"><span>0</span><span>暴露年限 <b>YEAR</b></span><span id="chartMaxYear">20</span></div>
+        <span id="actionStatus" class="action-status" role="status" aria-live="polite"></span>
+      </section>
+      <section class="panel comparison-panel" aria-labelledby="comparisonTitle"><div class="section-heading"><span class="section-number">03</span><div><h2 id="comparisonTitle">模型对比</h2><p>METHOD COMPARISON</p></div><span id="compareUnit" class="heading-note">UNIT / µm</span></div><div class="table-scroll"><table class="compare-table"><thead><tr><th>计算方法</th><th class="numeric">计算结果</th><th>方法特点</th><th>使用建议</th></tr></thead><tbody id="compareBody"></tbody></table></div></section>
+      <section class="panel reference-panel" aria-labelledby="referenceTitle"><div class="section-heading"><span class="section-number">04</span><div><h2 id="referenceTitle">数据参考</h2><p>REFERENCE DATA</p></div></div><div class="tabs" role="tablist" aria-label="参考数据类别"><button type="button" role="tab" aria-selected="true" class="tab active" data-tab="years">年限对照</button><button type="button" role="tab" aria-selected="false" class="tab" data-tab="annexA">Annex A</button><button type="button" role="tab" aria-selected="false" class="tab" data-tab="annexB">Annex B</button><button type="button" role="tab" aria-selected="false" class="tab" data-tab="iso9223">ISO 9223</button></div><div id="referenceContent" role="tabpanel" class="reference-content"></div></section>
+    </div>
+  </main>
+  <footer class="site-footer"><p>本工具依据 ISO 9223:2012 与 ISO 9224:2012，用于自然室外大气环境下金属腐蚀等级判断、长期腐蚀损失估算及不同计算方法的比较。计算结果仅供工程初步评估，实际设计应结合现场环境、材料及相关规范要求。</p><div class="footer-row"><strong>工程变量 <span>· Engineering Variables</span></strong><span>PRECISION THROUGH CLARITY</span></div></footer>
+</div>
+</body>
+</html>
